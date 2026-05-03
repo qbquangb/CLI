@@ -1,0 +1,6 @@
+tests/
+build/
+dist/
+thuongcli.egg-info/
+download/
+thuongcli/robot_brain.mp3
