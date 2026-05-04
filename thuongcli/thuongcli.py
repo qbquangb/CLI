@@ -35,9 +35,7 @@ def main():
                     "Email: qbquangbinh@gmail.com"
     )
     parser.add_argument("--name", "-n", help="Tên bạn", default="Trần Đình Thương")
-    parser.add_argument("--shutdown", "-s", action="store_true", help="Shutdown the computer")
-    parser.add_argument("--restart", "-r", action="store_true", help="Restart the computer")
-    parser.add_argument("--sleep", "-sl", action="store_true", help="Put the computer to sleep")
+    parser.add_argument("--time", "-t", type=int, default=0, help="Thời gian tắt máy (giây), ví dụ: -t 60")
     parser.add_argument("--version", action="version", version="mycli 1.1.3", help="Show version information")
     parser.add_argument("--youtube", "-y", action="store_true", help="Open YouTube in the default web browser")
     parser.add_argument("--clean", "-c", action="store_true", help="Clean temporary files")
@@ -132,6 +130,13 @@ def main():
     
     screen_capture_tool_parser = subparsers.add_parser("cap",
                                                        help="Chụp ảnh màn hình")
+
+    shutdown_parser = subparsers.add_parser("shutdown",
+                                             help="Tắt máy tính")
+    restart_parser = subparsers.add_parser("restart",
+                                            help="Khởi động lại máy tính")
+    sleep_parser = subparsers.add_parser("sleep",
+                                          help="Đưa máy tính vào chế độ ngủ")
     
     args = parser.parse_args()
     print_var = f'''
@@ -143,12 +148,18 @@ def main():
 
 '''
     print(print_var)
-    if args.shutdown:
-        os.system("shutdown /s /t 0")
-    elif args.restart:
-        os.system("shutdown /r /t 0")
-    elif args.sleep:
-        os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,1")
+    if args.command == "shutdown":
+        shutdown_time = max(0, args.time)
+        os.system(f"shutdown /s /t {shutdown_time}")
+    elif args.command == "restart":
+        restart_time = max(0, args.time)
+        os.system(f"shutdown /r /t {restart_time}")
+    elif args.command == "sleep":
+        sleep_time = max(0, args.time)
+        if sleep_time > 0:
+            os.system(f"timeout /t {sleep_time} /nobreak > nul && rundll32.exe powrprof.dll,SetSuspendState 1,1,1")
+        else:
+            os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,1")
     elif args.youtube:
         os.system("start https://www.youtube.com")
     elif args.clean:
