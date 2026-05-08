@@ -38,7 +38,7 @@ def main():
 
     parser.add_argument("--time", "-t", type=int, default=0, help="Thời gian tắt máy / restart " \
                                                                   "máy / sleep (giây), ví dụ: -t 60")
-    parser.add_argument("--version", action="version", version="mycli 1.1.4", help="Show version information")
+    parser.add_argument("--version", action="version", version="Version 1.1.4", help="Show version information")
     parser.add_argument("--verbose", "-v", action="store_true", help="Hiển thị thông tin khi chương trình chạy")
     parser.add_argument("--delete", "-d", action="store_true", help="Lựa chon xóa file hoặc không")
 

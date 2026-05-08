@@ -6,9 +6,8 @@ from tkinter import messagebox
 
 from PIL import ImageGrab
 
-
 FILE_PREFIX = "cap_"
-INPUT_FILE = Path(__file__).resolve().with_name("input_txt.py")
+INPUT_FILE = Path(__file__).resolve().with_name("input.txt")
 
 
 def load_save_dir() -> str:

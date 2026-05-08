@@ -93,7 +93,9 @@ Commands:
 
 Lưu ý:
 ------
-Để hiển thị thông tin trợ giúp đầy đủ bạn nên chạy lệnh sau: cli printHelp | more
+1. Để hiển thị thông tin trợ giúp đầy đủ bạn nên chạy lệnh sau: cli printHelp | more
+2. Với các lệnh liên qua đến file nên sao lưu file trước khi thực thi lệnh
+3. Xem thêm tại https://github.com/qbquangb/CLI/blob/main/README.md
 
 Liên hệ:
 --------

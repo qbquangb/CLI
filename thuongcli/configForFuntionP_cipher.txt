@@ -1,0 +1,4 @@
+# Duong dan luu thu muc passworld
+D:\.MyDriver\backup\password
+# key duoc lay tu bien moi truong.
+    cach dat: setx keypass "<ten_khoa_key>"
