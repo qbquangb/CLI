@@ -1,11 +1,12 @@
 import argparse
 import os
+from time import sleep
 from thuonglib.encrypt_decrypt_file    import (encrypt_file as encrypt_file_XOR, 
                                                decrypt_file as decrypt_file_XOR, 
                                                encrypt_file_BASE64, 
                                                decrypt_file_BASE64)
 from thuonglib.c_by_hand               import control_by_hand
-from thuonglib.delete_folder           import clean_files_temp, del_dir_downloads
+from thuonglib.delete_folder           import clean_files_temp_files_recycleBin, del_dir_downloads
 from thuonglib.password_cipher         import *
 from thuonglib.divide_merge_file       import divide_file, merge_file
 from thuonglib.AES_CBC                 import encrypt_file_AES_CBC, decrypt_file_AES_CBC
@@ -29,25 +30,22 @@ from pathlib                           import Path
 def main():
     parser = argparse.ArgumentParser(
         prog="cli",
-        usage="\ncli [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...\n",
+        usage="\ncli [OPTIONS] COMMAND [ARGS_0] [ARGS_1] [ARGS_2]...\n",
         description="Chương trình điều khiển máy tính bằng dòng lệnh.\n"
                     "Chương trình được viết bởi Trần Đình Thương.\n"
                     "Email: qbquangbinh@gmail.com"
     )
-    parser.add_argument("--name", "-n", help="Tên bạn", default="Trần Đình Thương")
-    parser.add_argument("--time", "-t", type=int, default=0, help="Thời gian tắt máy (giây), ví dụ: -t 60")
-    parser.add_argument("--version", action="version", version="mycli 1.1.3", help="Show version information")
-    parser.add_argument("--youtube", "-y", action="store_true", help="Open YouTube in the default web browser")
-    parser.add_argument("--clean", "-c", action="store_true", help="Clean temporary files")
-    parser.add_argument("--deepclean", "-dc", action="store_true", help="Xoa tat ca các tep va thu muc trong thu muc Downloads")
-    parser.add_argument("--control_hand", "-ch", action="store_true", help="Dieu khien may tinh bang cu chi tay.")
-    parser.add_argument("--div_mer_file", "-dmf", action="store_true", help="Chia va ghep file.")
+
+    parser.add_argument("--time", "-t", type=int, default=0, help="Thời gian tắt máy / restart " \
+                                                                  "máy / sleep (giây), ví dụ: -t 60")
+    parser.add_argument("--version", action="version", version="mycli 1.1.4", help="Show version information")
     parser.add_argument("--verbose", "-v", action="store_true", help="Hiển thị thông tin khi chương trình chạy")
+    parser.add_argument("--delete", "-d", action="store_true", help="Lựa chon xóa file hoặc không")
 
     subparsers = parser.add_subparsers(dest='command')
     subparsers.required = False
 
-    cipher_text_parser = subparsers.add_parser("cipher", help="Ma hoa van ban bang XOR cipher.")
+    cipher_text_parser = subparsers.add_parser("cipher", help="Ma hoa van ban và giai ma bang XOR cipher, sau do luu vao files")
 
     XOR_file_parser = subparsers.add_parser("XOR", help="Mã hóa file và giải mã file bằng XOR cipher.")
     XOR_file_parser.add_argument("--encrypt_file", "-ef", action="store_true", help="Mã hóa file bằng XOR cipher.")
@@ -57,39 +55,38 @@ def main():
     XOR_text_parser.add_argument("--encrypt_text", "-eft", action="store_true", help="Mã hóa văn bản bằng XOR cipher.")
     XOR_text_parser.add_argument("--decrypt_text", "-dft", action="store_true", help="Giải mã văn bản bằng XOR cipher.")
 
-    RSA_text_parser = subparsers.add_parser("RSA_TEXT", help="Mã hóa văn bản và giải mã văn bản bằng Bas64 và RSA.")
-    RSA_text_parser.add_argument("--encrypt_text_rsa", "-eftrsa", action="store_true", help="Mã hóa văn bản bằng Bas64 và RSA.")
-    RSA_text_parser.add_argument("--decrypt_text_rsa", "-dftrsa", action="store_true", help="Giải mã văn bản bằng Bas64 và RSA.")
+    RSA_text_parser = subparsers.add_parser("RSA_TEXT", help="Mã hóa văn bản và giải mã văn bản bằng Base64 và RSA.")
+    RSA_text_parser.add_argument("--encrypt_text_rsa", "-eftrsa", action="store_true", help="Mã hóa văn bản bằng Base64 và RSA.")
+    RSA_text_parser.add_argument("--decrypt_text_rsa", "-dftrsa", action="store_true", help="Giải mã văn bản bằng Base64 và RSA.")
 
     BASE64_file_parser = subparsers.add_parser("BASE64_FILE", help="Mã hóa file và giải mã file bằng base64.")
     BASE64_file_parser.add_argument("--encrypt", "-ef", action="store_true", help="Mã hóa file bằng base64.")
     BASE64_file_parser.add_argument("--decrypt", "-df", action="store_true", help="Giải mã file bằng base64.")
 
-    AES_CBC_parser = subparsers.add_parser("AES_CBC", help="Chương trình mã hóa và giải mã file bằng AES-CBC.")
+    AES_CBC_parser = subparsers.add_parser("AES_CBC", help="Chương trình mã hóa và giải mã file bằng AES-CBC. Lệnh hỗ trợ option (delete)")
     AES_CBC_parser.add_argument("--encrypt_file", "-ef", action="store_true", help="Mã hóa file bằng AES-CBC.")
     AES_CBC_parser.add_argument("--decrypt_file", "-df", action="store_true", help="Giải mã file bằng AES-CBC.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
+
     AES_CTR_parser = subparsers.add_parser("AES_CTR", help="Chương trình mã hóa và giải mã file bằng AES-CTR.")
     AES_CTR_parser.add_argument("--encrypt_file", "-ef", action="store_true", help="Mã hóa file bằng AES-CTR.")
     AES_CTR_parser.add_argument("--decrypt_file", "-df", action="store_true", help="Giải mã file bằng AES-CTR.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
+    
     AES_GCM_parser = subparsers.add_parser("AES_GCM", help="Chương trình mã hóa và giải mã file bằng AES-GCM.")
     AES_GCM_parser.add_argument("--encrypt_file", "-ef", action="store_true", help="Mã hóa file bằng AES-GCM.")
     AES_GCM_parser.add_argument("--decrypt_file", "-df", action="store_true", help="Giải mã file bằng AES-GCM.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
+
     AES_RSA_parser = subparsers.add_parser("AES_RSA", help="Chương trình tạo khóa RSA, mã hóa và giải mã file bằng AES-CBC và RSA-OAEP.")
     AES_RSA_parser.add_argument("--generate_keys", "-gk", action="store_true", help="Tạo cặp khóa RSA (public và private).")
     AES_RSA_parser.add_argument("--encrypt_file", "-ef", action="store_true", help="Mã hóa file bằng AES-CBC và khóa RSA.")
     AES_RSA_parser.add_argument("--decrypt_file", "-df", action="store_true", help="Giải mã file bằng AES-CBC và khóa RSA.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
+    
     hash_parser = subparsers.add_parser("hash", help="Tạo giá trị băm SHA256, SHA512, SHA3_256, SHA3_512 từ dữ liệu đầu vào.")
     hash_parser.add_argument("--algorithm", "-a", choices=["SHA256", "SHA512", "SHA3_256", "SHA3_512"], default="SHA3_512", 
                              help="Chọn thuật toán băm SHA256, SHA512, SHA3_256, SHA3_512 (mặc định là SHA3_512).")
     hash_parser.add_argument("data", type=str, 
                              help="Dữ liệu đầu vào để băm, chuỗi data hoặc chuỗi rỗng nếu tạo giá trị hash bằng với file.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
+    
     check_hash_parser = subparsers.add_parser("check_hash", help="So sánh mã hash của file với mã hash đã cung cấp.")
-    # ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤ ❤
 
     sign_file_parser = subparsers.add_parser("sign", help="Chương trình chữ ký số, dùng thư viện pycryptodome.")
     sign_file_parser.add_argument("--creat", "-cs", action="store_true", help="Tạo chữ ký số.")
@@ -130,18 +127,29 @@ def main():
     
     screen_capture_tool_parser = subparsers.add_parser("cap",
                                                        help="Chụp ảnh màn hình")
-
+    
     shutdown_parser = subparsers.add_parser("shutdown",
                                              help="Tắt máy tính")
+    
     restart_parser = subparsers.add_parser("restart",
                                             help="Khởi động lại máy tính")
+    
     sleep_parser = subparsers.add_parser("sleep",
                                           help="Đưa máy tính vào chế độ ngủ")
+    
+    clean_parser = subparsers.add_parser("clean",
+                                          help=r"Xóa file ở thư mục tạm (C:\) và file ở thùng rác")
+    
+    div_mer_file_parser = subparsers.add_parser("div_mer_file",
+                                          help="Chia và ghép file")
+    
+    printHelp_parser = subparsers.add_parser("printHelp",
+                                             help="Hiển thị trợ giúp")
     
     args = parser.parse_args()
     print_var = f'''
 
-    Hello, {args.name}!
+    Hello, Trần Đình Thương!
     Chương trình điều khiển máy tính bằng dòng lệnh
     Chương trình được viết bởi Trần Đình Thương
     Email: qbquangbinh@gmail.com
@@ -150,39 +158,41 @@ def main():
     print(print_var)
     if args.command == "shutdown":
         shutdown_time = max(0, args.time)
+        if shutdown_time:
+            print(f"Máy tính sẽ tắt sau {shutdown_time} s")
+            sleep(5)
         os.system(f"shutdown /s /t {shutdown_time}")
     elif args.command == "restart":
         restart_time = max(0, args.time)
+        if restart_time:
+            print(f"Máy tính sẽ restart sau {restart_time} s")
+            sleep(5)
         os.system(f"shutdown /r /t {restart_time}")
     elif args.command == "sleep":
         sleep_time = max(0, args.time)
         if sleep_time > 0:
+            print(f"Máy tính sẽ sleep sau {sleep_time} s")
+            sleep(5)
             os.system(f"timeout /t {sleep_time} /nobreak > nul && rundll32.exe powrprof.dll,SetSuspendState 1,1,1")
         else:
             os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,1")
-    elif args.youtube:
-        os.system("start https://www.youtube.com")
-    elif args.clean:
-        clean_files_temp()
-            
-    elif args.deepclean:
-        del_dir_downloads()
+    elif args.command == "clean":
+        clean_files_temp_files_recycleBin()
         
-    elif args.control_hand:
-        control_by_hand()
-    if args.command == "XOR_TEXT":
+    elif args.command == "XOR_TEXT":
         if args.encrypt_text:
             encrypt_text_XOR()
         elif args.decrypt_text:
             decrypt_text_XOR()
-    if args.command == "cipher":
-        p_cipher()
-    if args.command == "XOR":
+    elif args.command == "cipher":
+        INPUT_FILE = Path(__file__).resolve().with_name("configForFuntionP_cipher.txt")
+        p_cipher(str(INPUT_FILE))
+    elif args.command == "XOR":
         if args.encrypt_file:
             encrypt_file_XOR()
         elif args.decrypt_file:
             decrypt_file_XOR()
-    if args.div_mer_file:
+    elif args.command == "div_mer_file":
         print("Chia va ghep file.")
         choice = input("Nhap lua chon cua ban (d/m): ").lower()
         while choice not in ['d', 'm']:
@@ -191,39 +201,41 @@ def main():
             divide_file()
         else:
             merge_file()
-    if args.command == "AES_CBC":
+    elif args.command == "AES_CBC":
         if args.encrypt_file:
-            encrypt_file_AES_CBC()
+            encrypt_file_AES_CBC(args.delete)
         elif args.decrypt_file:
-            decrypt_file_AES_CBC()
-    if args.command == "RSA_TEXT":
+            decrypt_file_AES_CBC(delete = args.delete)
+    elif args.command == "RSA_TEXT":
+        INPUT_FILE = Path(__file__).resolve().with_name("configForKey_RSA_OAEP.yaml")
         if args.encrypt_text_rsa:
-            encrypt_text_RSA()
+            encrypt_text_RSA(str(INPUT_FILE))
         elif args.decrypt_text_rsa:
-            decrypt_text_RSA()
-    if args.command == "BASE64_FILE":
+            decrypt_text_RSA(str(INPUT_FILE))
+    elif args.command == "BASE64_FILE":
         if args.encrypt:
             encrypt_file_BASE64()
         elif args.decrypt:
             decrypt_file_BASE64()
-    if args.command == "AES_RSA":
+    elif args.command == "AES_RSA":
+        INPUT_FILE = Path(__file__).resolve().with_name("configForKey_RSA_OAEP.yaml")
         if args.generate_keys:
-            export_keys_RSA_OAEP()
+            export_keys_RSA_OAEP(str(INPUT_FILE))
         elif args.encrypt_file:
-            encrypt_file_rsa()
+            encrypt_file_rsa(file = str(INPUT_FILE), init_key = 0, delete = args.delete)
         elif args.decrypt_file:
-            decrypt_file_rsa()
-    if args.command == "AES_CTR":
+            decrypt_file_rsa(file = str(INPUT_FILE), init_key = 0, delete = args.delete)
+    elif args.command == "AES_CTR":
         if args.encrypt_file:
             encrypt_file_AES_CTR()
         elif args.decrypt_file:
             decrypt_file_AES_CTR()
-    if args.command == "AES_GCM":
+    elif args.command == "AES_GCM":
         if args.encrypt_file:
             encrypt_file_AES_GCM()
         elif args.decrypt_file:
             decrypt_file_AES_GCM()
-    if args.command == "hash":
+    elif args.command == "hash":
         if args.algorithm == "SHA256":
             sha256(args.data, file_write=0 if args.data else 1)
         elif args.algorithm == "SHA512":
@@ -232,24 +244,24 @@ def main():
             sha3_256(args.data, file_write=0 if args.data else 1)
         elif args.algorithm == "SHA3_512":
             sha3_512(args.data, file_write=0 if args.data else 1)
-    if args.command == "check_hash":
+    elif args.command == "check_hash":
         check_hash()
-    if args.command == "sign":
+    elif args.command == "sign":
         if args.creat:
             cipher_utilities.sign_file(args.filePath, args.keyPath, args.passworldKey)
         elif args.verify:
             cipher_utilities.verify_signature(args.filePath, args.keyPath)
-    if args.command == "file":
+    elif args.command == "file":
         if args.choice == "ENC":
             file_Security(args.filePath, args.privateKeyPath, args.passKeyPrivate, args.publicKeyPath, args.passKeyPublic)
         elif args.choice == "DEC":
             unFileSecurity(args.filePath, args.privateKeyPath, args.passKeyPrivate, args.publicKeyPath, args.passKeyPublic)
-    if args.command == "compress_file_1":
+    elif args.command == "compress_file_1":
         if args.choice == "com":
             compress_file_1(args.input_file)
         elif args.choice == "decom":
             decompress_file_1(args.input_file)
-    if args.command == "gzip":
+    elif args.command == "gzip":
         p = Path(args.input_file)
         if not p.exists():
             print(f"File {args.input_file} không tồn tại.")
@@ -268,15 +280,17 @@ def main():
                 f_out.write(f_in.read())
             print(f"File {args.input_file} đã được giải nén thành {out_path}")
 
-    if args.command == "findPhrase":
+    elif args.command == "findPhrase":
         findPhraseInFiles(encoding=args.encoding)
 
-    if args.command == "cap":
+    elif args.command == "cap":
         INPUT_FILE = Path(__file__).resolve().with_name("capture_once.bat")
         screen_capture_tool(str(INPUT_FILE), args.verbose)
-
+    elif args.command == "printHelp":
+        INPUT_FILE = Path(__file__).resolve().with_name("help.txt")
+        cliHelp(str(INPUT_FILE))
     else:
-        INPUT_FILE = Path(__file__).resolve().with_name("help_txt.py")
+        INPUT_FILE = Path(__file__).resolve().with_name("help.txt")
         cliHelp(str(INPUT_FILE))
 
 if __name__ == "__main__":

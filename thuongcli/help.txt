@@ -1,0 +1,103 @@
+Executing action: help
+
+usage: cli [OPTIONS] COMMAND [ARGS_0] [ARGS_1] [ARGS_2]...
+
+Options:
+-------
+    --version                       Hiện thị phiên bản của CLI và thoát.
+    -v, --verbose                   Hiển thị thông tin chi tiết hơn khi chạy lệnh.
+    -t, --time                      Thời gian tắt máy / restart máy / sleep (giây), ví dụ: -t 60.
+    -d, --delete                    Lựa chọn xóa file gốc sau khi mã hóa/giải mã (nếu lệnh hỗ trợ).
+    -h, --help                      Hiển thị trợ giúp
+
+Commands:
+---------
+    findPhrase                      Tìm một cụm từ trong tất cả file bên trong một thư mục, 
+                                    kể cả thư mục con. Ví dụ chạy lệnh: cli findPhrase
+
+    cap                             Chụp ảnh màn hình. Ví dụ chạy lệnh: cli cap
+
+    div_mer_file                    Chia và ghép file. Ví dụ chạy lệnh: cli div_mer_file
+
+    printHelp                       Hiển thị trợ giúp. Ví dụ chạy lệnh: cli printHelp
+
+    cipher                          Mã hóa văn bản và giải mã bằng XOR cipher, sau đó lưu vào file.
+                                    Ví dụ chạy lệnh: cli cipher
+
+    XOR                             Mã hóa file và giải mã file bằng XOR cipher. 
+                                    Để mã hóa file: cli XOR -ef
+                                    Để giải mã file: cli XOR -df
+
+    XOR_TEXT                        Mã hóa văn bản và giải mã văn bản bằng XOR cipher. 
+                                    Để mã hóa văn bản: cli XOR_TEXT -eft
+                                    Để giải mã văn bản: cli XOR_TEXT -dft
+
+    RSA_TEXT                        Mã hóa văn bản và giải mã văn bản bằng Base64 và RSA. 
+                                    Để mã hóa văn bản: cli RSA_TEXT -eftrsa
+                                    Để giải mã văn bản: cli RSA_TEXT -dftrsa
+
+    BASE64_FILE                     Mã hóa file và giải mã file bằng base64. 
+                                    Để mã hóa file: cli BASE64_FILE -ef
+                                    Để giải mã file: cli BASE64_FILE -df
+
+    AES_CBC                         Mã hóa và giải mã file bằng AES-CBC, hỗ trợ option --delete. 
+                                    Để mã hóa file: cli AES_CBC -ef
+                                    Để giải mã file: cli -d AES_CBC -df
+
+    AES_CTR                         Mã hóa và giải mã file bằng AES-CTR. 
+                                    Để mã hóa file: cli AES_CTR -ef
+                                    Để giải mã file: cli AES_CTR -df
+
+    AES_GCM                         Mã hóa và giải mã file bằng AES-GCM. 
+                                    Để mã hóa file: cli AES_GCM -ef
+                                    Để giải mã file: cli AES_GCM -df
+
+    AES_RSA                         Tạo khóa RSA, mã hóa và giải mã file bằng AES-CBC và RSA-OAEP.
+                                    Để tạo khóa: cli AES_RSA -gk
+                                    Để mã hóa: cli AES_RSA -ef
+                                    Để giải mã: cli AES_RSA -df
+
+    hash                            Tạo giá trị băm SHA256, SHA512, SHA3_256, SHA3_512 từ dữ liệu đầu vào.
+                                    Ví dụ chạy lệnh: cli hash
+
+    check_hash                      So sánh mã hash của file với mã hash đã cung cấp.
+                                    Ví dụ chạy lệnh: cli check_hash
+
+    sign                            Tạo và xác minh chữ ký số bằng pycryptodome. 
+                                    Để tạo chữ ký số: cli sign -cs --filePath INFILE --keyPath INFILE --passworldKey True
+                                    Để xác minh chữ ký: cli sign -vs --filePath INFILE --keyPath INFILE --passworldKey True
+
+    file                            Mã hóa/giải mã file kết hợp chữ ký số bằng pycryptodome. 
+                                    Để mã hóa: cli file -ch ENC --filePath INFILE --privateKeyPath INFILE --passKeyPrivate True --publicKeyPath INFILE --passKeyPublic True
+                                    Để giải mã: cli file -ch DEC --filePath INFILE --privateKeyPath INFILE --passKeyPrivate True --publicKeyPath INFILE --passKeyPublic True
+
+    compress_file_1                 Nén/giải nén file bằng thuật toán Huffman. 
+                                    Để nén file: cli compress_file_1 -c com -i INFILE
+                                    Để giải nén file: cli compress_file_1 -c decom -i INFILE
+
+    gzip                            Nén/giải nén file bằng gzip. 
+                                    Để nén file: cli gzip -c com -i INFILE
+                                    Để giải nén file: cli gzip -c decom -i INFILE
+
+    shutdown                        Tắt máy tính (có thể kết hợp --time).
+                                    Ví dụ chạy lệnh: cli -t 60 shutdown
+
+    restart                         Khởi động lại máy tính (có thể kết hợp --time).
+                                    Ví dụ chạy lệnh: cli -t 60 restart
+
+    sleep                           Đưa máy tính vào chế độ ngủ (có thể kết hợp --time).
+                                    Ví dụ chạy lệnh: cli -t 60 sleep
+
+    clean                           Xóa file ở thư mục tạm (C:\) và file ở thùng rác.
+                                    Ví dụ chạy lệnh: cli clean
+
+Lưu ý:
+------
+Để hiển thị thông tin trợ giúp đầy đủ bạn nên chạy lệnh sau: cli printHelp | more
+
+Liên hệ:
+--------
+Nếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ, vui lòng liên hệ với tôi
+    Name: Trần Đình Thương
+    Email: qbquangbinh@gmail.com
+    Number Phone: 0335 652 338
